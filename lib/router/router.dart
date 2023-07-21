@@ -44,7 +44,6 @@ class DaravelRouter {
 
   DaravelResponse router(Request request) {
     for (var response in _responses) {
-      print(response.path);
       if (request.url.path == response.path &&
           request.method == response.method.name) {
         return response.handler(request);

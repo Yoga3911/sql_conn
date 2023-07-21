@@ -1,13 +1,35 @@
 import 'package:daravel/handlers/auth_handler.dart';
+import 'package:daravel/models/connection_model.dart';
 import 'package:shelf/shelf.dart';
 
-import 'databases/postgresql.dart';
+import 'databases/database_wrapper.dart';
 import 'router/router.dart';
+import 'utils/select_sql_driver.dart';
 
-void main() async {
-  await PostgreSqlDriver.init();
+void main(List<String> arguments) async {
+  final db = Database(selectSqlDriver(arguments));
+  // ? POSTGRESQL
+  // await db.connect(
+  //   ConnectionModel(
+  //     host: "localhost",
+  //     database: "postgres",
+  //     username: "postgres",
+  //     password: "123456",
+  //     port: 5555,
+  //   ),
+  // );
+  // ? MYSQL
+  await db.connect(
+    ConnectionModel(
+      host: "localhost",
+      database: "coba",
+      username: "root",
+      password: "123456",
+      port: 6666,
+    ),
+  );
   // ? Auth Handler
-  final AuthHandler authHandler = AuthHandler();
+  final AuthHandler authHandler = AuthHandler(db);
 
   DaravelRouter router = DaravelRouter();
 

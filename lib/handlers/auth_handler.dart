@@ -1,27 +1,38 @@
 import 'dart:convert';
 
+import 'package:daravel/databases/database_wrapper.dart';
 import 'package:shelf/shelf.dart';
 
-import '../models/user_model.dart';
 import '../typedef/future_response.dart';
-import '../user_list.dart';
 
 class AuthHandler {
-  const AuthHandler._internal();
-
-  static final AuthHandler _instance = const AuthHandler._internal();
-
-  factory AuthHandler() => _instance;
+  final Database db;
+  const AuthHandler(this.db);
 
   DaravelResponse register(Request request) async {
     final requestJson = await request.readAsString();
     final requestMap = jsonDecode(requestJson);
 
+    final id = requestMap['id'];
     final name = requestMap['name'];
     final password = requestMap['password'];
-    users.add(
-      UserModel(name: name, password: password),
+    final result = await db.insert(
+      "INSERT INTO users (id, name, password) VALUES (?, ?, ?)",
+      params: {
+        "id": id,
+        "name": name,
+        "password": password,
+      },
     );
+
+    if (!result) {
+      final response = jsonEncode({
+        "message": "Register failed",
+        "data": null,
+      });
+
+      return Response.badRequest(body: response);
+    }
 
     final response = jsonEncode({
       "message": "Register success",
@@ -38,27 +49,33 @@ class AuthHandler {
     final name = requestMap['name'];
     final password = requestMap['password'];
 
-    for (var user in users) {
-      if (user.name == name) {
-        if (user.password == password) {
-          final response = jsonEncode({
-            "message": "Login success",
-            "data": {
-              "name": user.name,
-              "password": user.password,
-            },
-          });
+    final userList = await db.select(
+      "SELECT * FROM users WHERE name = ?",
+      params: {"name": name},
+    );
 
-          return Response.ok(response);
-        }
-      }
-    }
-
-    final response = jsonEncode({
+    var response = jsonEncode({
       "message": "Password or username is wrong",
       "data": null,
     });
 
-    return Response.unauthorized(response);
+    if (userList.isEmpty) {
+      return Response.unauthorized(response);
+    }
+
+    final user = userList.first;
+    if (user["password"] != password) {
+      return Response.unauthorized(response);
+    }
+
+    response = jsonEncode({
+      "message": "Login success",
+      "data": {
+        "name": user["name"],
+        "password": user["password"],
+      },
+    });
+
+    return Response.ok(response);
   }
 }
