@@ -1,6 +1,5 @@
-import 'package:daravel/daravel.dart';
+import 'package:daravel/server.dart' as server;
 
 void main(List<String> arguments) {
-  final result = sayHello("Bambang");
-  print(result);
+  server.main();
 }
