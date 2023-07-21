@@ -1,0 +1,14 @@
+name: daravel
+description: A sample command-line application.
+version: 1.0.0
+repository: https://github.com/fugindo/daravel
+
+environment:
+  sdk: ^3.0.6
+
+dependencies:
+  path: ^1.8.3
+
+dev_dependencies:
+  lints: ^2.1.1
+  test: ^1.24.4
