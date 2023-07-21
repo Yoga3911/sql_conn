@@ -1,9 +1,11 @@
 import 'package:daravel/handlers/auth_handler.dart';
 import 'package:shelf/shelf.dart';
 
+import 'databases/postgresql.dart';
 import 'router/router.dart';
 
 void main() async {
+  await PostgreSqlDriver.init();
   // ? Auth Handler
   final AuthHandler authHandler = AuthHandler();
 
